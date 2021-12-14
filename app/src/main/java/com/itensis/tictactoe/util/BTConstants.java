@@ -14,9 +14,11 @@ public interface BTConstants {
     String DEVICE_NAME = "device_name";
     String TOAST_TEXT = "toast_text";
 
-    int SERVICE_STATE_NONE = 0;
-    int SERVICE_STATE_CONNECTING = 1;
-    int SERVICE_STATE_CONNECTED = 2;
-    int SERVICE_STATE_LISTENING = 3;
+    int SERVICE_STATE_NONE = 6;
+    int SERVICE_STATE_CONNECTING = 7;
+    int SERVICE_STATE_CONNECTED = 8;
+    int SERVICE_STATE_LISTENING = 9;
+
+    int REQUEST_ENABLE_DISCOVERABLE = 10;
 
 }

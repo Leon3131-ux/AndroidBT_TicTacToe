@@ -1,5 +1,6 @@
 package com.itensis.tictactoe.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,9 +9,14 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.itensis.tictactoe.R;
+import com.itensis.tictactoe.service.BTService;
 import com.itensis.tictactoe.util.BTConstants;
 
 import java.io.IOException;
@@ -20,26 +26,40 @@ public class BTHostActivity extends AppCompatActivity {
 
     private final BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
     private TextView statusText;
-    private final static int REQUEST_ENABLE_BT = 1;
-    private final static int REQUEST_ENABLE_DISCOVERABILITY = 2;
+
+    private final Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if(msg.what == BTConstants.MESSAGE_STATE_CHANGE){
+                if(msg.arg1 == BTConstants.SERVICE_STATE_CONNECTED){
+                    statusText.setText("Connected");
+                }
+            }
+            if(msg.what == BTConstants.MESSAGE_DEVICE_NAME){
+                statusText.setText("Connected to: " + msg.getData().getString(BTConstants.DEVICE_NAME));
+            }
+
+            if(msg.what == BTConstants.MESSAGE_TOAST){
+                Toast.makeText(BTHostActivity.this, msg.getData().getString(BTConstants.TOAST_TEXT), Toast.LENGTH_SHORT).show();
+            }
+            super.handleMessage(msg);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_host);
         statusText = findViewById(R.id.hostStatusText);
-        setUp();
+        enableDiscoverability();
+        BTService btService = new BTService(handler);
+        btService.openServerSocket();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_ENABLE_BT){
-            if(resultCode == RESULT_OK){
-                enableDiscoverability();
-            }
-        }
-        if(requestCode == REQUEST_ENABLE_DISCOVERABILITY){
+        if(requestCode == BTConstants.REQUEST_ENABLE_DISCOVERABLE){
             if(resultCode != RESULT_CANCELED){
                 statusText.setText("Device discoverable as: " + btAdapter.getName());
             }
@@ -47,66 +67,11 @@ public class BTHostActivity extends AppCompatActivity {
 
     }
 
-    private void setUp(){
-        if(btAdapter != null){
-            if(!btAdapter.isEnabled()){
-                Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBt, REQUEST_ENABLE_BT);
-            }else {
-                enableDiscoverability();
-            }
-        }
-    }
-
     private void enableDiscoverability(){
         Intent discoverableIntent =
                 new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERABILITY);
-    }
-
-    private class AcceptThread extends Thread{
-        private final BluetoothServerSocket serverSocket;
-
-        public AcceptThread() {
-            BluetoothServerSocket tempServerSocket = null;
-            try {
-                tempServerSocket = btAdapter.listenUsingRfcommWithServiceRecord(BTConstants.name, UUID.fromString(BTConstants.uuid));
-            } catch (IOException e) {
-                //TODO error handling
-                statusText.setText("Error");
-            }
-            serverSocket = tempServerSocket;
-        }
-
-        public void run() {
-            BluetoothSocket socket = null;
-            while (true) {
-                try {
-                    socket = serverSocket.accept();
-                } catch (IOException e) {
-                    //TODO error handling
-                    statusText.setText("Error");
-                }
-
-                if (socket != null) {
-//                    manageMyConnectedSocket(socket);
-                    statusText.setText("Connected");
-                    cancel();
-                    break;
-                }
-            }
-        }
-
-        public void cancel() {
-            try {
-                serverSocket.close();
-            } catch (IOException e) {
-                //TODO error handling
-                statusText.setText("Error");
-            }
-        }
-
+        startActivityForResult(discoverableIntent, BTConstants.REQUEST_ENABLE_DISCOVERABLE);
     }
 
 }
