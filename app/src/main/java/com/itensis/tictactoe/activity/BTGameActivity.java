@@ -21,7 +21,7 @@ public class BTGameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bluetoothgame);
+        setContentView(R.layout.activity_bluetooth_game);
         statusText = findViewById(R.id.statusText);
 
         if(isHost){
