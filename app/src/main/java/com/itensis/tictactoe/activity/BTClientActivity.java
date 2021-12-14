@@ -65,6 +65,10 @@ public class BTClientActivity extends AppCompatActivity {
             if(msg.what == BTConstants.MESSAGE_TOAST){
                 Toast.makeText(BTClientActivity.this, msg.getData().getString(BTConstants.TOAST_TEXT), Toast.LENGTH_SHORT).show();
             }
+            if(msg.what == BTConstants.MESSAGE_READ){
+                String message = new String((byte[]) msg.obj, 0, msg.arg1);
+                statusText.setText(message);
+            }
             super.handleMessage(msg);
         }
     };

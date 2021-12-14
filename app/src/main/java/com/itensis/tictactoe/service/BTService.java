@@ -61,6 +61,19 @@ public class BTService {
         handler.obtainMessage(BTConstants.MESSAGE_STATE_CHANGE, currentState, -1).sendToTarget();
     }
 
+    public void write(byte[] buffer){
+
+        ConnectedThread copy;
+
+        synchronized (this){
+            if(currentState != BTConstants.SERVICE_STATE_CONNECTED){
+                return;
+            }
+            copy = connectedThread;
+        }
+        copy.write(buffer);
+    }
+
     private void connectionLost(){
         //TODO implement logic
     }
@@ -157,13 +170,17 @@ public class BTService {
         private final BluetoothDevice device;
 
         public ConnectThread(BluetoothDevice device){
+            BluetoothSocket tmp = null;
+
             this.device = device;
 
             try {
-                btSocket = device.createRfcommSocketToServiceRecord(UUID.fromString(BTConstants.uuid));
+                tmp = device.createRfcommSocketToServiceRecord(UUID.fromString(BTConstants.uuid));
             }catch (IOException e){
                 connectionFailed();
             }
+
+            btSocket = tmp;
 
             currentState = BTConstants.SERVICE_STATE_CONNECTING;
             updateState();
@@ -174,6 +191,10 @@ public class BTService {
                 btSocket.connect();
             }catch (IOException e){
                 connectionFailed();
+            }
+
+            synchronized (BTService.this) {
+                connectThread = null;
             }
 
             connected(btSocket, device);
@@ -236,6 +257,7 @@ public class BTService {
                 handler.obtainMessage(BTConstants.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
             }catch (IOException e){
                 sendToast("Could not send message");
+                e.printStackTrace();
             }
         }
 

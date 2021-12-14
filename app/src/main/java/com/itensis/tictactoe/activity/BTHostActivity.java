@@ -26,6 +26,7 @@ public class BTHostActivity extends AppCompatActivity {
 
     private final BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
     private TextView statusText;
+    private BTService btService;
 
     private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
@@ -37,6 +38,7 @@ public class BTHostActivity extends AppCompatActivity {
             }
             if(msg.what == BTConstants.MESSAGE_DEVICE_NAME){
                 statusText.setText("Connected to: " + msg.getData().getString(BTConstants.DEVICE_NAME));
+                btService.write("test".getBytes());
             }
 
             if(msg.what == BTConstants.MESSAGE_TOAST){
@@ -52,7 +54,7 @@ public class BTHostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_bluetooth_host);
         statusText = findViewById(R.id.hostStatusText);
         enableDiscoverability();
-        BTService btService = new BTService(handler);
+        btService = new BTService(handler);
         btService.openServerSocket();
     }
 
