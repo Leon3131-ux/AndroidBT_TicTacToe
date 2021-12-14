@@ -26,6 +26,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TicTacToe">
+        <service android:name=".service.BTService"/>
         <activity
             android:name=".activity.BTGameActivity"
             android:exported="false" />

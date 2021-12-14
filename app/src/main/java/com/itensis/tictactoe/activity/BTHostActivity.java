@@ -7,9 +7,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.widget.TextView;
@@ -27,6 +31,7 @@ public class BTHostActivity extends AppCompatActivity {
     private final BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
     private TextView statusText;
     private BTService btService;
+    private boolean bound;
 
     private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
@@ -48,14 +53,40 @@ public class BTHostActivity extends AppCompatActivity {
         }
     };
 
+    private final ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            BTService.BTServiceBinder binder = (BTService.BTServiceBinder) service;
+            btService = binder.getService();
+            btService.setHandler(handler);
+            btService.openServerSocket();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            bound = false;
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(connection);
+        bound = false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_host);
         statusText = findViewById(R.id.hostStatusText);
         enableDiscoverability();
-        btService = new BTService(handler);
-        btService.openServerSocket();
+        Intent btServiceIntent = new Intent(this, BTService.class);
+        bindService(btServiceIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
     @Override

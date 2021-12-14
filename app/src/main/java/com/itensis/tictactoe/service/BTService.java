@@ -1,12 +1,18 @@
 package com.itensis.tictactoe.service;
 
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+
+import androidx.annotation.Nullable;
 
 import com.itensis.tictactoe.util.BTConstants;
 
@@ -15,19 +21,30 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-public class BTService {
+public class BTService extends Service {
 
-    private final Handler handler;
-    private final BluetoothAdapter btAdapter;
-    private int currentState;
+    private Handler handler;
+    private final BluetoothAdapter btAdapter= BluetoothAdapter.getDefaultAdapter();
+    private int currentState = BTConstants.SERVICE_STATE_NONE;
     private AcceptThread acceptThread = null;
     private ConnectThread connectThread = null;
     private ConnectedThread connectedThread = null;
+    private final IBinder binder = new BTServiceBinder();
 
-    public BTService(Handler handler){
+    public class BTServiceBinder extends Binder {
+        public BTService getService() {
+            return BTService.this;
+        }
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    public void setHandler(Handler handler){
         this.handler = handler;
-        this.btAdapter = BluetoothAdapter.getDefaultAdapter();
-        this.currentState = BTConstants.SERVICE_STATE_NONE;
     }
 
     public void openServerSocket(){

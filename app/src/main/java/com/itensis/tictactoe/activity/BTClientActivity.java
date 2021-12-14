@@ -6,11 +6,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.view.View;
@@ -35,6 +38,8 @@ public class BTClientActivity extends AppCompatActivity {
     private TextView statusText;
     private ListView devicesList;
     private final List<BluetoothDevice> foundDevices = new ArrayList<>();
+    private BTService btService;
+    private boolean bound;
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -73,6 +78,30 @@ public class BTClientActivity extends AppCompatActivity {
         }
     };
 
+    private final ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            BTService.BTServiceBinder binder = (BTService.BTServiceBinder) service;
+            btService = binder.getService();
+            btService.setHandler(handler);
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            bound = false;
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(connection);
+        bound = false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +114,9 @@ public class BTClientActivity extends AppCompatActivity {
         registerDeviceClicked();
 
         discoverDevices();
+
+        Intent btServiceIntent = new Intent(this, BTService.class);
+        bindService(btServiceIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
     private void discoverDevices(){
@@ -117,9 +149,12 @@ public class BTClientActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = foundDevices.get(position);
 
-                BTService btService = new BTService(handler);
 
-                btService.openConnection(device);
+                if(bound){
+                    btService.openConnection(device);
+                }else {
+                    Toast.makeText(BTClientActivity.this, "Could not connect", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
