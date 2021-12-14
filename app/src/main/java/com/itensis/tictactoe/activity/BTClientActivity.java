@@ -53,7 +53,6 @@ public class BTClientActivity extends AppCompatActivity {
     private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
             if(msg.what == BTConstants.MESSAGE_STATE_CHANGE){
                 if(msg.arg1 == BTConstants.SERVICE_STATE_CONNECTED){
                     statusText.setText("Connected");
@@ -66,6 +65,7 @@ public class BTClientActivity extends AppCompatActivity {
             if(msg.what == BTConstants.MESSAGE_TOAST){
                 Toast.makeText(BTClientActivity.this, msg.getData().getString(BTConstants.TOAST_TEXT), Toast.LENGTH_SHORT).show();
             }
+            super.handleMessage(msg);
         }
     };
 

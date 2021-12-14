@@ -58,7 +58,7 @@ public class BTService {
     }
 
     private synchronized void updateState(){
-        handler.obtainMessage(BTConstants.MESSAGE_STATE_CHANGE, -1, -1, currentState).sendToTarget();
+        handler.obtainMessage(BTConstants.MESSAGE_STATE_CHANGE, currentState, -1).sendToTarget();
     }
 
     private void connectionLost(){
