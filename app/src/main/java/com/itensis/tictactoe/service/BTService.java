@@ -15,6 +15,7 @@ import android.os.Message;
 import androidx.annotation.Nullable;
 
 import com.itensis.tictactoe.util.BTConstants;
+import com.itensis.tictactoe.util.GameConstants;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,7 +108,7 @@ public class BTService extends Service {
         handler.sendMessage(message);
     }
 
-    private synchronized void cancelThreads(){
+    public synchronized void cancelThreads(){
         if(acceptThread != null){
             acceptThread.cancel();
             acceptThread = null;
@@ -259,7 +260,18 @@ public class BTService extends Service {
                 try {
                     bytes = inputStream.read(buffer);
 
-                    handler.obtainMessage(BTConstants.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                    String message = new String(buffer, 0, bytes);
+
+                    int prefix = Integer.parseInt(message.substring(0, message.indexOf(".")));
+                    String messageData = message.substring(message.indexOf(".") + 1);
+
+                    Message handlerMessage = handler.obtainMessage(BTConstants.MESSAGE_READ, prefix, -1);
+                    Bundle bundle = new Bundle();
+                    if(!messageData.equals("")){
+                        bundle.putString(GameConstants.MOVE, messageData);
+                    }
+                    handlerMessage.setData(bundle);
+                    handler.sendMessage(handlerMessage);
                 } catch (IOException e) {
                     connectionLost();
                     break;

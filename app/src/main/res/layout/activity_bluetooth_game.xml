@@ -8,7 +8,7 @@
     tools:context=".activity.BTGameActivity">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/gameStatusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="96dp"
@@ -33,19 +33,22 @@
         <Button
             android:id="@+id/x1y1"
             android:layout_width="100dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:onClick="makeMove" />
 
         <Button
             android:id="@+id/x2y1"
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp" />
+            android:layout_marginRight="10dp"
+            android:onClick="makeMove" />
 
         <Button
             android:id="@+id/x3y1"
             android:layout_width="100dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:onClick="makeMove" />
     </LinearLayout>
 
     <LinearLayout
@@ -62,19 +65,22 @@
         <Button
             android:id="@+id/x1y2"
             android:layout_width="100dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:onClick="makeMove" />
 
         <Button
             android:id="@+id/x2y2"
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp" />
+            android:layout_marginRight="10dp"
+            android:onClick="makeMove" />
 
         <Button
             android:id="@+id/x3y2"
             android:layout_width="100dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:onClick="makeMove" />
     </LinearLayout>
 
     <LinearLayout
@@ -91,20 +97,23 @@
         <Button
             android:id="@+id/x1y3"
             android:layout_width="100dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:onClick="makeMove" />
 
         <Button
             android:id="@+id/x2y3"
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp" />
+            android:layout_marginRight="10dp"
+            android:onClick="makeMove" />
 
         <Button
             android:id="@+id/x3y3"
             android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:layout_weight="0" />
+            android:layout_weight="0"
+            android:onClick="makeMove" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

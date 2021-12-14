@@ -60,7 +60,11 @@ public class BTClientActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             if(msg.what == BTConstants.MESSAGE_STATE_CHANGE){
                 if(msg.arg1 == BTConstants.SERVICE_STATE_CONNECTED){
-                    statusText.setText("Connected");
+                    Intent gameIntent = new Intent(BTClientActivity.this, BTGameActivity.class);
+                    startActivity(gameIntent);
+                }
+                if(msg.arg1 == BTConstants.SERVICE_STATE_NONE){
+                    statusText.setText("Disconnected");
                 }
             }
             if(msg.what == BTConstants.MESSAGE_DEVICE_NAME){
@@ -98,6 +102,7 @@ public class BTClientActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        btService.cancelThreads();
         unbindService(connection);
         bound = false;
     }

@@ -2,7 +2,9 @@ package com.itensis.tictactoe.util;
 
 public interface GameConstants {
 
-    int MOVE = 1;
-    int WIN = 2;
+    int MESSAGE_MOVE = 11;
+    int MESSAGE_WIN = 12;
+
+    String MOVE = "move";
 
 }

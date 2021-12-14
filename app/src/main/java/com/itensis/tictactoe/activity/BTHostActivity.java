@@ -38,12 +38,15 @@ public class BTHostActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             if(msg.what == BTConstants.MESSAGE_STATE_CHANGE){
                 if(msg.arg1 == BTConstants.SERVICE_STATE_CONNECTED){
-                    statusText.setText("Connected");
+                    Intent gameIntent = new Intent(BTHostActivity.this, BTGameActivity.class);
+                    startActivity(gameIntent);
+                }
+                if(msg.arg1 == BTConstants.SERVICE_STATE_NONE){
+                    statusText.setText("Disconnected");
                 }
             }
             if(msg.what == BTConstants.MESSAGE_DEVICE_NAME){
                 statusText.setText("Connected to: " + msg.getData().getString(BTConstants.DEVICE_NAME));
-                btService.write("test".getBytes());
             }
 
             if(msg.what == BTConstants.MESSAGE_TOAST){
@@ -58,7 +61,6 @@ public class BTHostActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
             BTService.BTServiceBinder binder = (BTService.BTServiceBinder) service;
             btService = binder.getService();
             btService.setHandler(handler);
@@ -75,6 +77,7 @@ public class BTHostActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        btService.cancelThreads();
         unbindService(connection);
         bound = false;
     }
