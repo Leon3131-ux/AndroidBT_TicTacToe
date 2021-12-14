@@ -5,4 +5,18 @@ public interface BTConstants {
     String uuid = "aeb97191-5cd4-4650-8955-58dfb1ba917c";
     String name = "ticTacToe";
 
+    int MESSAGE_READ = 1;
+    int MESSAGE_WRITE = 2;
+    int MESSAGE_DEVICE_NAME = 3;
+    int MESSAGE_STATE_CHANGE = 4;
+    int MESSAGE_TOAST = 5;
+
+    String DEVICE_NAME = "device_name";
+    String TOAST_TEXT = "toast_text";
+
+    int SERVICE_STATE_NONE = 0;
+    int SERVICE_STATE_CONNECTING = 1;
+    int SERVICE_STATE_CONNECTED = 2;
+    int SERVICE_STATE_LISTENING = 3;
+
 }

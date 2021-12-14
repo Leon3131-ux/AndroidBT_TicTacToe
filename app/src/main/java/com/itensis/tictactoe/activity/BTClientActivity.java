@@ -1,5 +1,6 @@
 package com.itensis.tictactoe.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
@@ -9,13 +10,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.itensis.tictactoe.R;
+import com.itensis.tictactoe.service.BTService;
+import com.itensis.tictactoe.util.BTConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +45,26 @@ public class BTClientActivity extends AppCompatActivity {
                     foundDevices.add(device);
                     updateFoundDevicesList();
                 }
+            }
+        }
+    };
+
+
+    private final Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == BTConstants.MESSAGE_STATE_CHANGE){
+                if(msg.arg1 == BTConstants.SERVICE_STATE_CONNECTED){
+                    statusText.setText("Connected");
+                }
+            }
+            if(msg.what == BTConstants.MESSAGE_DEVICE_NAME){
+                statusText.setText("Connected to: " + msg.getData().getString(BTConstants.DEVICE_NAME));
+            }
+
+            if(msg.what == BTConstants.MESSAGE_TOAST){
+                Toast.makeText(BTClientActivity.this, msg.getData().getString(BTConstants.TOAST_TEXT), Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -86,7 +113,9 @@ public class BTClientActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = foundDevices.get(position);
 
-                //TODO handle connect code
+                BTService btService = new BTService(handler);
+
+                btService.openConnection(device);
             }
         });
     }
