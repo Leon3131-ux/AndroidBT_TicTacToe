@@ -61,7 +61,7 @@ public class BTHostActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == BTConstants.REQUEST_ENABLE_DISCOVERABLE){
             if(resultCode != RESULT_CANCELED){
-                statusText.setText("Device discoverable as: " + btAdapter.getName());
+                statusText.setText("Device discoverable as: " + btAdapter.getName() + "\n" + btAdapter.getAddress());
             }
         }
 

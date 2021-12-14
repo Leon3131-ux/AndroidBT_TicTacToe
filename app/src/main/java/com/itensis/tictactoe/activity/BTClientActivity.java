@@ -41,7 +41,7 @@ public class BTClientActivity extends AppCompatActivity {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(!foundDevices.contains(device)){
+                if(!foundDevices.contains(device) && device.getName() != null){
                     foundDevices.add(device);
                     updateFoundDevicesList();
                 }
@@ -91,7 +91,7 @@ public class BTClientActivity extends AppCompatActivity {
     private void updateFoundDevicesList(){
         List<String> names = foundDevices
                 .stream()
-                .map(BluetoothDevice::getName)
+                .map(device -> device.getName() + "\n" + device.getAddress())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
